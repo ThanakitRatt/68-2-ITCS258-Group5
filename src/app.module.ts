@@ -32,11 +32,11 @@ import { APP_GUARD } from '@nestjs/core';
             port: 6379,
           },
         }),
-        ttl: 5*60*1000, // Cache TTL in milliseconds (5 minutes)
+        ttl: 5*60, // Cache TTL in seconds (5 minutes)
       }),
     }),
     ThrottlerModule.forRoot([{
-      ttl: 60*1000, // Time to live in milliseconds (1 minute)
+      ttl: 60, // Time to live in seconds (1 minute)
       limit: 30,  // Max number of requests within TTL
     }]),],
   controllers: [AppController],

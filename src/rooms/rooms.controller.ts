@@ -16,7 +16,7 @@ import { skip } from 'node:test';
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
-  @Throttle({ default: { limit: 10, ttl: 60*1000 } })
+  @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Post()
@@ -24,24 +24,24 @@ export class RoomsController {
     return this.roomsService.create(createRoomDto);
   }
 
-  @UseInterceptors(CacheInterceptor)
+  // @UseInterceptors(CacheInterceptor)
   @CacheTTL(30) // Cache for 30 seconds
-  @Throttle({ default: { limit: 10, ttl: 60*1000 } })
+  @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard)
   @Get()
   findAll() {
     return this.roomsService.findAll();
   }
 
-  @UseInterceptors(CacheInterceptor)
-  @Throttle({ default: { limit: 10, ttl: 60*1000 } })
+  // @UseInterceptors(CacheInterceptor)
+  @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.findARoom(id);
   }
 
-  @Throttle({ default: { limit: 10, ttl: 60*1000 } })
+  @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Patch(':id/disable')
@@ -49,7 +49,7 @@ export class RoomsController {
     return this.roomsService.disable(id);
   }
 
-  @Throttle({ default: { limit: 10, ttl: 60*1000 } })
+  @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Patch(':id/enable')
@@ -57,7 +57,7 @@ export class RoomsController {
     return this.roomsService.enable(id);
   }
 
-  @Throttle({ default: { limit: 10, ttl: 60*1000 } })
+  @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Delete(':id')
