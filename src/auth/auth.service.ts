@@ -22,21 +22,22 @@ export class AuthService {
   constructor(private prisma: PrismaService, private jwtService: JwtService) {}
 
   async register(registerDto: RegisterDto) {
-    const { username, password } = registerDto;
+    const { email, password } = registerDto;
 
     const existingUser = await this.prisma.users.findFirst({
-      where: { username },
+      where: { email },
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this username already exists');
+      throw new ConflictException('User with this email already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = await this.prisma.users.create({
       data: {
-        username,
+        name: registerDto.name,
+        email,
         password: hashedPassword,
       },
     });
@@ -45,13 +46,14 @@ export class AuthService {
       message: 'User registered successfully',
       user: {
         id: user.id,
-        username: user.username,
+        email: user.email,
+        name: user.name,
       },
     };
   }
   
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.prisma.users.findFirst({ where: { username } });
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.prisma.users.findFirst({ where: { email } });
     if (user && (await bcrypt.compare(pass, user.password))) {
       const { password, ...result } = user;
       return result;
@@ -60,11 +62,11 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    const user = await this.validateUser(loginDto.username, loginDto.password);
+    const user = await this.validateUser(loginDto.email, loginDto.password);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const payload = { username: user.username, sub: user.id, role: user.role };
+    const payload = { email: user.email, sub: user.id, role: user.Role };
     return {
       access_token: this.jwtService.sign(payload),
     };

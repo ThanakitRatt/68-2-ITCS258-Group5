@@ -10,21 +10,21 @@ import {
 } from 'class-validator';
 
 export class CreateRoomDto {
-  @IsString()
+  @IsString({})
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
-  @IsString()
+  @IsString({})
   @IsOptional()
   description?: string;
 
   @IsInt()
   @IsNotEmpty()
-  capacity: number;
+  capacity!: number;
 
   @IsNumber({}, { message: 'price_per_night must be a number' })
   @IsPositive()
-  price_per_night: number;
+  price_per_night!: number;
 
   @IsString()
   @IsOptional()

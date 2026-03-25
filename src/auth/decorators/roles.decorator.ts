@@ -8,7 +8,7 @@ I understand how to create a role decorator in NestJS, and how to use them with 
 In this implementation, I created a Roles decorator and a RolesGuard to check if the user has the required role to access certain endpoints.
 */
 import { SetMetadata } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { Users_Role } from '@prisma/client';
 
 export const ROLES_KEY = 'roles';
-export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
+export const Roles = (...roles: Users_Role[]) => SetMetadata(ROLES_KEY, roles);

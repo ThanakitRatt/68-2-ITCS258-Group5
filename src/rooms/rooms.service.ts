@@ -27,7 +27,7 @@ export class RoomsService {
     try {
       return this.prisma.rooms.create({ data: createRoomDto });
     } catch (error) {
-      this.logger.error(`Failed to create room: ${error.message}`);
+      this.logger.error(`Failed to create room: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -57,7 +57,7 @@ export class RoomsService {
       });
     }
     catch (error){
-      this.logger.error(`Failed to disable room: ${error.message}`);
+      this.logger.error(`Failed to disable room: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -72,7 +72,7 @@ export class RoomsService {
     });
     }
     catch (error){
-      this.logger.error(`Failed to enable room: ${error.message}`);
+      this.logger.error(`Failed to enable room: ${(error as Error).message}`);
       throw error;
     }
   }

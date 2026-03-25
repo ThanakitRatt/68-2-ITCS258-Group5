@@ -5,7 +5,7 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { Users_Role } from '@prisma/client';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { Throttle } from '@nestjs/throttler';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -18,7 +18,7 @@ export class RoomsController {
 
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Users_Role.Admin)
   @Post()
   create(@Body() createRoomDto: CreateRoomDto) {
     return this.roomsService.create(createRoomDto);
@@ -43,7 +43,7 @@ export class RoomsController {
 
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Users_Role.Admin)
   @Patch(':id/disable')
   disable(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.disable(id);
@@ -51,7 +51,7 @@ export class RoomsController {
 
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Users_Role.Admin)
   @Patch(':id/enable')
   enable(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.enable(id);
@@ -59,7 +59,7 @@ export class RoomsController {
 
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Users_Role.Admin)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.remove(id);

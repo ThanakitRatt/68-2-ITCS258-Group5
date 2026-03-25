@@ -1,11 +1,26 @@
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+
 export class User {
-  id: number;
-  email: string;
-  passwordHash: string;
-  roles: Role; 
+  @IsNotEmpty()
+  id!: number;
+
+  @IsEmail()
+  @IsNotEmpty()
+  email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  passwordHash!: string;
+
+  @IsNotEmpty()
+  role!: User_Role;
 }
 
-export enum Role {
-  Admin = 'ADMIN',
-  User = 'USER',
+export enum User_Role {
+  Admin = 'Admin',
+  User = 'User',
 }
