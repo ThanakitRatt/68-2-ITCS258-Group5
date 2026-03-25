@@ -1,4 +1,4 @@
-# 🏨 ICT Hotel Management System
+# ICT Hotel Management System
 
 > **Group 5** — NestJS · TypeScript · Prisma · MySQL
 
@@ -13,6 +13,7 @@ Make sure the following are installed before proceeding:
 | Node.js | v18+ |
 | npm | v9+ |
 | MySQL / MariaDB | v8+ / v10+ |
+| Redis | v7+ |
 | TypeScript | v5+ |
 | NestJS CLI | v10+ |
 
@@ -199,7 +200,18 @@ npx prisma generate
 
 ---
 
-### Step 12 — Run the Application
+### Step 12 — Install & Start Redis
+
+```bash
+brew install redis
+brew services start redis
+```
+
+> ⚠️ **macOS only.** For Linux, use `sudo apt install redis-server && sudo systemctl start redis`. For Windows, use WSL or the [Redis Windows port](https://github.com/microsoftarchive/redis/releases).
+
+---
+
+### Step 13 — Run the Application
 
 ```bash
 # Development (with hot reload)
@@ -233,6 +245,7 @@ npm run start
 - [ ] `npx prisma init` → update `schema.prisma`
 - [ ] `npx prisma db pull` → `npx prisma db push`
 - [ ] `npx prisma generate`
+- [ ] `brew install redis` → `brew services start redis`
 - [ ] `npm run start:dev`
 
 ---
@@ -246,6 +259,6 @@ npm run start
 | ORM | Prisma |
 | Database | MySQL / MariaDB |
 | Auth | JWT + Passport |
+| Cache | Redis |
 | Validation | class-validator |
 | Hashing | bcrypt |
-
