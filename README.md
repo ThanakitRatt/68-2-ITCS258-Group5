@@ -207,6 +207,14 @@ brew install redis
 brew services start redis
 ```
 
+```bash
+sudo npm install ioredis
+npm install ioredis
+
+sudo npm install --save-dev @types/ioredis
+npm install --save-dev @types/ioredis
+```
+
 > ⚠️ **macOS only.** For Linux, use `sudo apt install redis-server && sudo systemctl start redis`. For Windows, use WSL or the [Redis Windows port](https://github.com/microsoftarchive/redis/releases).
 
 ---

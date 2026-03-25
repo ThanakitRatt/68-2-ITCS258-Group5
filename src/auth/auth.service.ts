@@ -16,10 +16,12 @@ import { RegisterDto } from './dto/RegisterDto.dto';
 import { LoginDto } from './dto/LoginDto.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { Redis } from 'ioredis';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwtService: JwtService) {}
+  constructor(private prisma: PrismaService, private jwtService: JwtService, private redisClient: RedisService) {}
 
   async register(registerDto: RegisterDto) {
     const { email, password } = registerDto;
@@ -66,9 +68,31 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const payload = { email: user.email, sub: user.id, role: user.Role };
+    const payload = { email: user.email, id: user.id, role: user.Role };
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async logout(token: string) {
+    const decoded = this.jwtService.decode(token) as any;
+
+    if (!decoded || !decoded.exp) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const expiresIn = decoded.exp - Math.floor(Date.now() / 1000);
+
+    if (expiresIn <= 0) {
+      return { message: 'Token already expired' };
+    }
+
+    try {
+      await this.redisClient.set(`blacklist:${token}`, '1', 'EX', expiresIn);
+    } catch (err) {
+      throw new Error('Logout failed');
+    }
+
+    return { message: 'Logged out successfully' };
   }
 }

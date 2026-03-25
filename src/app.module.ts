@@ -20,9 +20,10 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, RoomsModule, AuthModule, UsersModule, 
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, RoomsModule, AuthModule, UsersModule, RedisModule,
     CacheModule.registerAsync({
       isGlobal: true, // Make cache module available globally
       useFactory: async () => ({

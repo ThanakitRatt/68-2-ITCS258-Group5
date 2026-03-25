@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PrismaModule } from '../prisma/prisma.module';
+import { RedisModule } from '../redis/redis.module'; // Import RedisModule
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PrismaModule } from '../prisma/prisma.module';
       inject: [ConfigService],
     }),
     PrismaModule,
+    RedisModule, 
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
