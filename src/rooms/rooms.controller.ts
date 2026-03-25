@@ -24,7 +24,7 @@ export class RoomsController {
     return this.roomsService.create(createRoomDto);
   }
 
-  // @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(CacheInterceptor)
   @CacheTTL(30) // Cache for 30 seconds
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard)
@@ -33,7 +33,7 @@ export class RoomsController {
     return this.roomsService.findAll();
   }
 
-  // @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(CacheInterceptor)
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
