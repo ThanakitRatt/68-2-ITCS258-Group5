@@ -77,6 +77,21 @@ export class RoomsService {
     }
   }
 
+  async update(id: number, updateRoomDto: UpdateRoomDto) {
+    this.logger.log(`Updating room id: ${id}`);
+    try{
+      await this.findARoom(id);
+      return this.prisma.rooms.update({
+        where: { id },
+        data: updateRoomDto
+    });
+    }
+    catch (error){
+      this.logger.error(`Failed to update room: ${(error as Error).message}`);
+      throw error;
+    }
+  }
+
   remove(id: number) {
     return `This action removes a #${id} room`;
   }

@@ -60,6 +60,14 @@ export class RoomsController {
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Users_Role.Admin)
+  @Patch(':id')
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateRoomDto: UpdateRoomDto) {
+    return this.roomsService.update(id, updateRoomDto);
+  }
+
+  @Throttle({ default: { limit: 10, ttl: 60 } })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Users_Role.Admin)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.remove(id);
