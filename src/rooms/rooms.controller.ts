@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, UseInterceptors } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, UseInterceptors, Query} from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
+import { SearchRoomDto } from './dto/search-room.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -31,6 +32,13 @@ export class RoomsController {
   @Get()
   findAll() {
     return this.roomsService.findAll();
+  }
+
+  @Throttle({ default: { limit: 20, ttl: 60 } })
+  @UseGuards(JwtAuthGuard)
+  @Get('search')
+  search(@Query() dto: SearchRoomDto) {
+    return this.roomsService.search(dto);
   }
 
   @UseInterceptors(CacheInterceptor)
