@@ -9,10 +9,13 @@ From existing Lab4, I implemented DTO validation using class-validator decorator
 I added Error Handling, so when the error occurs, it returns appropriate messages.
 I also added Logging using log/warn/error to log events occurring in the service.
 */
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
-import { SearchRoomDto } from './dto/search-room.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -23,12 +26,9 @@ export class RoomsService {
 
   create(createRoomDto: CreateRoomDto) {
     this.logger.log(`Creating room: ${createRoomDto.name}`);
-    try {
-      return this.prisma.rooms.create({ data: createRoomDto });
-    } catch (error) {
-      this.logger.error(`Failed to create room: ${(error as Error).message}`);
-      throw error;
-    }
+    return this.prisma.rooms.create({
+      data: createRoomDto,
+    });
   }
 
   findAll() {
@@ -40,70 +40,8 @@ export class RoomsService {
     });
   }
 
-  async search(dto: SearchRoomDto) {
-    const { check_in, check_out, min_capacity, max_price, min_price } = dto;
-
-    if ((check_in && !check_out) || (!check_in && check_out)) {
-      throw new BadRequestException('Both check_in and check_out are required for date search');
-    }
-
-    if (check_in && check_out) {
-      const inDate = new Date(check_in);
-      const outDate = new Date(check_out);
-
-      if (inDate >= outDate) {
-        throw new BadRequestException('check_in must be before check_out');
-      }
-    }
-
-    this.logger.log(`Searching rooms with filters: ${JSON.stringify(dto)}`);
-
-    let bookedRoomIds: number[] = [];
-
-    if (check_in && check_out) {
-      const inDate = new Date(check_in);
-      const outDate = new Date(check_out);
-
-      const overlappingBookings = await this.prisma.bookings.findMany({
-        where: {
-          AND: [
-            { check_in_date: { lt: outDate } },
-            { check_out_date: { gt: inDate } },
-            { status: { in: ['PENDING', 'APPROVED', 'PAID'] } },
-          ],
-        },
-        select: { room_id: true },
-      });
-
-      bookedRoomIds = overlappingBookings.map((b) => b.room_id);
-      this.logger.log(`Rooms unavailable for selected dates: ${bookedRoomIds}`);
-    }
-
-    const rooms = await this.prisma.rooms.findMany({
-      where: {
-        is_active: true,
-        ...(bookedRoomIds.length > 0 && {
-          id: { notIn: bookedRoomIds },
-        }),
-        ...(min_capacity !== undefined && {
-          capacity: { gte: min_capacity },
-        }),
-        ...(min_price !== undefined && {
-          price_per_night: { gte: min_price },
-        }),
-        ...(max_price !== undefined && {
-          price_per_night: { lte: max_price },
-        }),
-      },
-    });
-
-    this.logger.log(`Found ${rooms.length} available rooms`);
-    return rooms;
-  }
-
   async findARoom(id: number) {
     this.logger.log(`Fetching room id: ${id}`);
-
     const room = await this.prisma.rooms.findUnique({
       where: { id },
     });
@@ -150,7 +88,7 @@ export class RoomsService {
   }
 
   async remove(id: number) {
-    this.logger.log(`Removing room id: ${id}`);
+    this.logger.log(`Deleting room id: ${id}`);
 
     await this.findARoom(id);
 
