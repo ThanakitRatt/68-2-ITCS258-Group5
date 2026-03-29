@@ -1,8 +1,42 @@
 version: '3.8'
+
 services:
+  mariadb:
+    image: mariadb:11
+    container_name: hotel_mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: Group5_ICTHotel
+      MARIADB_USER: ICTHotelUser
+      MARIADB_PASSWORD: 1234
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
   redis:
     image: redis:alpine
     container_name: hotel_redis
+    restart: always
     ports:
       - "6379:6379"
+
+  api:
+    build: .
+    container_name: hotel_api
     restart: always
+    depends_on:
+      - mariadb
+      - redis
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: mysql://ICTHotelUser:1234@mariadb:3306/Group5_ICTHotel
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: mysecretkey
+      JWT_EXPIRATION: 3600
+
+volumes:
+  mariadb_data:

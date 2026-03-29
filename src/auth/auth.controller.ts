@@ -1,10 +1,24 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/RegisterDto.dto';
 import { LoginDto } from './dto/LoginDto.dto';
 import { Request } from 'express';
-import { JwtAuthGuard } from './guards/jwt-auth.guard'; 
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -19,13 +33,19 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        id: { type: 'number', example: 1 },
-        username: { type: 'string', example: 'john_doe' },
-        email: { type: 'string', example: 'john.doe@example.com' },
+        message: { type: 'string', example: 'User registered successfully' },
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            name: { type: 'string', example: 'John Doe' },
+            email: { type: 'string', example: 'john.doe@example.com' },
+          },
+        },
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 409, description: 'User with this email already exists' })
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
@@ -33,18 +53,20 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   @ApiOperation({ summary: 'Login a user' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'User logged in successfully',
     schema: {
       type: 'object',
       properties: {
-        accessToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'},
+        access_token: {
+          type: 'string',
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        },
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
@@ -53,19 +75,19 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Logout a user' })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'User logged out successfully', 
+  @ApiResponse({
+    status: 200,
+    description: 'User logged out successfully',
     schema: {
       type: 'object',
       properties: {
-        success: { type: 'boolean', example: true },
+        message: { type: 'string', example: 'Logged out successfully' },
       },
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async logout(@Req() req: Request) {
-    const auth = req.headers['authorization']; // Fix: use object property access, not .get()
+    const auth = req.headers['authorization'];
     const token = auth?.startsWith('Bearer ') ? auth.slice(7) : undefined;
 
     if (!token) {

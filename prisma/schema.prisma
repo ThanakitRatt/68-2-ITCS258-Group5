@@ -7,11 +7,26 @@ datasource db {
 }
 
 model Users {
-  id       Int        @id @default(autoincrement())
-  name     String     @db.VarChar(100)
-  email    String     @unique(map: "email") @db.VarChar(100)
-  password String     @db.VarChar(100)
-  Role     Users_Role @default(User)
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(100)
+  email         String          @unique(map: "email") @db.VarChar(100)
+  password      String          @db.VarChar(100)
+  Role          Users_Role      @default(User)
+  bookings      Bookings[]
+  notifications Notifications[]
+}
+
+model Rooms {
+  id              Int        @id @default(autoincrement())
+  name            String     @db.VarChar(100)
+  description     String?    @db.Text
+  capacity        Int
+  price_per_night Decimal    @db.Decimal(10, 2)
+  image_url       String?    @db.VarChar(255)
+  is_active       Boolean?   @default(true)
+  created_at      DateTime?  @default(now()) @db.DateTime(0)
+  updated_at      DateTime?  @default(now()) @updatedAt @db.DateTime(0)
+  bookings        Bookings[]
 }
 
 model Bookings {
@@ -21,18 +36,25 @@ model Bookings {
   check_in_date  DateTime        @db.DateTime(0)
   check_out_date DateTime        @db.DateTime(0)
   status         Bookings_status @default(PENDING)
+  created_at     DateTime        @default(now()) @db.DateTime(0)
+  updated_at     DateTime        @default(now()) @updatedAt @db.DateTime(0)
+
+  user Users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  room Rooms @relation(fields: [room_id], references: [id], onDelete: Cascade)
+
+  notifications Notifications[]
 }
 
-model Rooms {
-  id              Int       @id @default(autoincrement())
-  name            String    @db.VarChar(100)
-  description     String?   @db.Text
-  capacity        Int
-  price_per_night Decimal   @db.Decimal(10, 2)
-  image_url       String?   @db.VarChar(255)
-  is_active       Boolean?  @default(true)
-  created_at      DateTime? @default(now()) @db.DateTime(0)
-  updated_at      DateTime? @default(now()) @db.DateTime(0)
+model Notifications {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  booking_id Int
+  type       String   @db.VarChar(50)
+  message    String   @db.VarChar(255)
+  created_at DateTime @default(now()) @db.DateTime(0)
+
+  user    Users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  booking Bookings @relation(fields: [booking_id], references: [id], onDelete: Cascade)
 }
 
 enum Users_Role {

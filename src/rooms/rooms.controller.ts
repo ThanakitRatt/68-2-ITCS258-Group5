@@ -1,198 +1,131 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  UseGuards,
+  UseInterceptors,
+  Query,
+} from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
+import { SearchRoomDto } from './dto/search-room.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Users_Role } from '@prisma/client';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
-import { Throttle } from '@nestjs/throttler';
-import { SkipThrottle } from '@nestjs/throttler';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 
 @ApiTags('rooms')
 @ApiBearerAuth('access-token')
-@SkipThrottle() // Skip throttling for this controller, we will apply it to individual routes
+@SkipThrottle()
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
-  @Post()
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Users_Role.Admin)
-  @ApiOperation({ summary: 'Create a new room' })
-  @ApiResponse({
-    status: 201,
-    description: 'Room created successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean', example: true },
-      },
-    },
-  })
+  @Post()
+  @ApiOperation({ summary: 'Create a new room (Admin only)' })
+  @ApiResponse({ status: 201, description: 'Room created successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
-  @ApiResponse({ status: 404, description: 'Room not found' })
-  @ApiResponse({ status: 429, description: 'Too Many Requests' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   create(@Body() createRoomDto: CreateRoomDto) {
     return this.roomsService.create(createRoomDto);
   }
 
-  @Get()
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(30) // Cache for 30 seconds
+  @CacheTTL(30)
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get all rooms' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of rooms retrieved successfully',
-    schema: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'number', example: 1 },
-          name: { type: 'string', example: 'Deluxe Room' },
-          description: { type: 'string', example: 'A spacious room with a king-size bed' },
-          capacity: { type: 'number', example: 2 },
-          price_per_night: { type: 'number', example: 150.0 },
-          image_url: { type: 'string', example: 'https://example.com/image.jpg' },
-          is_active: { type: 'boolean', example: true },
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 429, description: 'Too Many Requests' })
+  @Get()
+  @ApiOperation({ summary: 'Get all active rooms' })
+  @ApiResponse({ status: 200, description: 'Rooms retrieved successfully' })
   findAll() {
     return this.roomsService.findAll();
   }
 
-  @Get(':id')
+  @Throttle({ default: { limit: 20, ttl: 60 } })
+  @UseGuards(JwtAuthGuard)
+  @Get('search')
+  @ApiOperation({ summary: 'Search available rooms by filters' })
+  @ApiQuery({ name: 'check_in', required: false, type: String, example: '2026-04-01T14:00:00.000Z' })
+  @ApiQuery({ name: 'check_out', required: false, type: String, example: '2026-04-03T12:00:00.000Z' })
+  @ApiQuery({ name: 'min_capacity', required: false, type: Number, example: 2 })
+  @ApiQuery({ name: 'min_price', required: false, type: Number, example: 100 })
+  @ApiQuery({ name: 'max_price', required: false, type: Number, example: 300 })
+  @ApiResponse({ status: 200, description: 'Search completed successfully' })
+  search(@Query() dto: SearchRoomDto) {
+    return this.roomsService.search(dto);
+  }
+
   @UseInterceptors(CacheInterceptor)
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard)
+  @Get(':id')
   @ApiOperation({ summary: 'Get a room by ID' })
-  @ApiParam({ name: 'id', description: 'Room ID', type: Number })
-  @ApiResponse({
-    status: 200,
-    description: 'Room retrieved successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        id: { type: 'number', example: 1 },
-        name: { type: 'string', example: 'Deluxe Room' },
-        description: { type: 'string', example: 'A spacious room with a king-size bed' },
-        capacity: { type: 'number', example: 2 },
-        price_per_night: { type: 'number', example: 150.0 },
-        image_url: { type: 'string', example: 'https://example.com/image.jpg' },
-        is_active: { type: 'boolean', example: true },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiParam({ name: 'id', type: Number, example: 1 })
+  @ApiResponse({ status: 200, description: 'Room retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Room not found' })
-  @ApiResponse({ status: 429, description: 'Too Many Requests' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.findARoom(id);
   }
 
-  @Patch(':id/disable')
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Users_Role.Admin)
-  @ApiOperation({ summary: 'Disable a room' })
-  @ApiParam({ name: 'id', description: 'Room ID', type: Number })
-  @ApiResponse({
-    status: 200,
-    description: 'Room disabled successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean', example: true },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
-  @ApiResponse({ status: 404, description: 'Room not found' })
-  @ApiResponse({ status: 429, description: 'Too Many Requests' })
+  @Patch(':id/disable')
+  @ApiOperation({ summary: 'Disable a room (Admin only)' })
+  @ApiParam({ name: 'id', type: Number, example: 1 })
+  @ApiResponse({ status: 200, description: 'Room disabled successfully' })
   disable(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.disable(id);
   }
 
-  @Patch(':id/enable')
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Users_Role.Admin)
-  @ApiOperation({ summary: 'Enable a room' })
-  @ApiParam({ name: 'id', description: 'Room ID', type: Number })
-  @ApiResponse({
-    status: 200,
-    description: 'Room enabled successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean', example: true },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
-  @ApiResponse({ status: 404, description: 'Room not found' })
-  @ApiResponse({ status: 429, description: 'Too Many Requests' })
+  @Patch(':id/enable')
+  @ApiOperation({ summary: 'Enable a room (Admin only)' })
+  @ApiParam({ name: 'id', type: Number, example: 1 })
+  @ApiResponse({ status: 200, description: 'Room enabled successfully' })
   enable(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.enable(id);
   }
 
-  @Patch(':id')
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Users_Role.Admin)
-  @ApiOperation({ summary: 'Update a room' })
-  @ApiParam({ name: 'id', description: 'Room ID', type: Number })
-  @ApiResponse({
-    status: 200,
-    description: 'Room updated successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean', example: true },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
-  @ApiResponse({ status: 404, description: 'Room not found' })
-  @ApiResponse({ status: 429, description: 'Too Many Requests' })
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a room (Admin only)' })
+  @ApiParam({ name: 'id', type: Number, example: 1 })
+  @ApiResponse({ status: 200, description: 'Room updated successfully' })
   update(@Param('id', ParseIntPipe) id: number, @Body() updateRoomDto: UpdateRoomDto) {
     return this.roomsService.update(id, updateRoomDto);
   }
 
-  @Delete(':id')
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Users_Role.Admin)
-  @ApiOperation({ summary: 'Delete a room' })
-  @ApiParam({ name: 'id', description: 'Room ID', type: Number })
-  @ApiResponse({
-    status: 200,
-    description: 'Room deleted successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean', example: true },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
-  @ApiResponse({ status: 404, description: 'Room not found' })
-  @ApiResponse({ status: 429, description: 'Too Many Requests' })
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a room (Admin only)' })
+  @ApiParam({ name: 'id', type: Number, example: 1 })
+  @ApiResponse({ status: 200, description: 'Room removed successfully' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.remove(id);
   }
