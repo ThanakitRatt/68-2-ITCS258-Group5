@@ -1,0 +1,20 @@
+# Ignore node modules
+node_modules/
+jspm_packages/
+
+# Ignore dist
+dist/
+
+# Ignore prisma
+prisma/
+prisma.config.ts
+
+# Ignore package.json
+package.json
+package-lock.json
+
+# Ignore tsconfig
+tsconfig.json
+
+# Ignore .DS_Store
+.DS_Store
