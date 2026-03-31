@@ -215,11 +215,20 @@ sudo npm install --save-dev @types/ioredis
 npm install --save-dev @types/ioredis
 ```
 
+---
+
+### Step 13 - Install swagger for UI
+
+```bash
+sudo npm install --save @nestjs/swagger swagger-ui-express --legacy-peer-deps
+npm install --save @nestjs/swagger swagger-ui-express --legacy-peer-deps
+```
+
 > ⚠️ **macOS only.** For Linux, use `sudo apt install redis-server && sudo systemctl start redis`. For Windows, use WSL or the [Redis Windows port](https://github.com/microsoftarchive/redis/releases).
 
 ---
 
-### Step 13 — Run the Application
+### Step 14 — Run the Application
 
 ```bash
 # Development (with hot reload)
@@ -234,6 +243,7 @@ npm run start
 ```
 
 > The API runs on **http://localhost:3000** by default.
+> The API runs on **http://localhost:3000/api-docs** for Swagger UI.
 
 ---
 
