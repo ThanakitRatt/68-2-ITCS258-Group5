@@ -16,6 +16,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { BookingsModule } from './bookings/bookings.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { SearchModule } from './search/search.module';  
 import { redisStore } from 'cache-manager-redis-yet';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -23,7 +26,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { RedisModule } from './redis/redis.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, RoomsModule, AuthModule, UsersModule, RedisModule,
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, RoomsModule, AuthModule, UsersModule, RedisModule, SearchModule, BookingsModule, NotificationsModule,
     CacheModule.registerAsync({
       isGlobal: true, // Make cache module available globally
       useFactory: async () => ({
