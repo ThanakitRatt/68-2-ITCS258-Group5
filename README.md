@@ -275,6 +275,10 @@ JWT_EXPIRATION=3600
 PORT=3000
 
 ```
+### Step 3 - Build and Run 
+```bash
+docker compose up --build
+```
 
 ## ✅ Setup Checklist
 
