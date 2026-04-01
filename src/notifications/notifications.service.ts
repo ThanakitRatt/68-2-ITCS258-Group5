@@ -21,6 +21,7 @@ export class NotificationsService {
 
   async findAll(userRole: Users_Role) {
     if (userRole !== Users_Role.Admin) {
+      this.logger.warn(`Unauthorized attempt to access all notifications by non-admin user`);
       throw new ForbiddenException('Only admins can view all notifications');
     }
 

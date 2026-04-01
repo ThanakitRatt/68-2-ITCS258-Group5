@@ -18,15 +18,18 @@ export class BookingsService {
 
   private validateBookingDates(checkIn: Date, checkOut: Date) {
     if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) {
+      this.logger.warn(`Invalid booking dates: check_in_date=${checkIn}, check_out_date=${checkOut}`);
       throw new BadRequestException('Invalid booking dates');
     }
 
     if (checkIn >= checkOut) {
+      this.logger.warn(`check_in_date must be before check_out_date: check_in_date=${checkIn}, check_out_date=${checkOut}`);
       throw new BadRequestException('check_in_date must be before check_out_date');
     }
 
     const now = new Date();
     if (checkIn < now) {
+      this.logger.warn(`check_in_date cannot be in the past: check_in_date=${checkIn}`);
       throw new BadRequestException('check_in_date cannot be in the past');
     }
   }
@@ -54,6 +57,7 @@ export class BookingsService {
     });
 
     if (overlappingBooking) {
+      this.logger.warn(`Room ${roomId} is already booked for the selected dates: check_in_date=${checkIn}, check_out_date=${checkOut}`);
       throw new BadRequestException('This room is already booked for the selected dates');
     }
   }
@@ -71,10 +75,12 @@ export class BookingsService {
     });
 
     if (!room) {
+      this.logger.warn(`Room ${room_id} not found when user ${userId} attempted to create a booking`);
       throw new NotFoundException(`Room ${room_id} not found`);
     }
 
     if (!room.is_active) {
+      this.logger.warn(`Room ${room_id} is not active when user ${userId} attempted to create a booking`);
       throw new BadRequestException('This room is not available for booking');
     }
 
@@ -108,6 +114,7 @@ export class BookingsService {
   }
 
   async findMyBookings(userId: number) {
+    this.logger.log(`Fetching bookings for user ${userId}`);
     return this.prisma.bookings.findMany({
       where: { user_id: userId },
       orderBy: {
@@ -117,6 +124,7 @@ export class BookingsService {
   }
 
   async findAll() {
+    this.logger.log('Fetching all bookings');
     return this.prisma.bookings.findMany({
       orderBy: {
         check_in_date: 'desc',
@@ -130,13 +138,16 @@ export class BookingsService {
     });
 
     if (!booking) {
+      this.logger.warn(`Booking ${bookingId} not found when user ${userId} attempted to view it`);
       throw new NotFoundException(`Booking ${bookingId} not found`);
     }
 
     if (userRole !== Users_Role.Admin && booking.user_id !== userId) {
+      this.logger.warn(`User ${userId} attempted to view booking ${bookingId} without permission`);
       throw new ForbiddenException('You can only view your own bookings');
     }
 
+    this.logger.log(`User ${userId} viewed booking ${bookingId}`);
     return booking;
   }
 
@@ -146,14 +157,17 @@ export class BookingsService {
     });
 
     if (!booking) {
+      this.logger.warn(`Booking ${bookingId} not found when user ${userId} attempted to cancel it`);
       throw new NotFoundException(`Booking ${bookingId} not found`);
     }
 
     if (booking.user_id !== userId) {
+      this.logger.warn(`User ${userId} attempted to cancel booking ${bookingId} without permission`);
       throw new ForbiddenException('You can only cancel your own bookings');
     }
 
     if (booking.status === Bookings_status.CANCELLED) {
+      this.logger.warn(`Booking ${bookingId} is already cancelled`);
       throw new BadRequestException('This booking is already cancelled');
     }
 
@@ -171,6 +185,7 @@ export class BookingsService {
       },
     });
 
+    this.logger.log(`User ${userId} cancelled booking ${bookingId}`);
     return {
       message: 'Booking cancelled successfully',
       booking: updatedBooking,
@@ -183,6 +198,7 @@ export class BookingsService {
     });
 
     if (!booking) {
+      this.logger.warn(`Booking ${bookingId} not found when attempting to update status`);
       throw new NotFoundException(`Booking ${bookingId} not found`);
     }
 
@@ -202,6 +218,7 @@ export class BookingsService {
       },
     });
 
+    this.logger.log(`Booking ${updatedBooking.id} status updated to ${updatedBooking.status}`);
     return {
       message: 'Booking status updated successfully',
       booking: updatedBooking,

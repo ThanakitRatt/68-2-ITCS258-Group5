@@ -22,6 +22,7 @@ export class SearchService {
     } = filters;
 
     if ((checkIn && !checkOut) || (!checkIn && checkOut)) {
+      this.logger.warn(`Invalid search query: checkIn and checkOut must be provided together`);
       throw new BadRequestException('checkIn and checkOut must be provided together');
     }
 
@@ -33,10 +34,12 @@ export class SearchService {
       checkOutDate = new Date(checkOut);
 
       if (Number.isNaN(checkInDate.getTime()) || Number.isNaN(checkOutDate.getTime())) {
+        this.logger.warn(`Invalid date format for checkIn or checkOut: checkIn=${checkIn}, checkOut=${checkOut}`);
         throw new BadRequestException('Invalid checkIn/checkOut date format');
       }
 
       if (checkInDate >= checkOutDate) {
+        this.logger.warn(`checkIn date must be before checkOut date: checkIn=${checkIn}, checkOut=${checkOut}`);
         throw new BadRequestException('checkIn must be before checkOut');
       }
     }
@@ -90,6 +93,8 @@ export class SearchService {
       }),
       this.prisma.rooms.count({ where }),
     ]);
+
+    this.logger.log(`SearchRooms executed with filters: ${JSON.stringify(filters)}, found ${total} matching rooms`);
 
     return {data, total};
   }
