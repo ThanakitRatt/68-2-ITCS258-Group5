@@ -141,6 +141,8 @@ npm install -D @types/passport-jwt @types/passport-local
 # Password hashing
 sudo npm install bcrypt
 npm install bcrypt
+
+sudo npm install --save-dev @types/bcrypt
 npm install --save-dev @types/bcrypt
 ```
 
