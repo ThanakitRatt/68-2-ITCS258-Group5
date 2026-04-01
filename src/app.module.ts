@@ -32,8 +32,8 @@ import { RedisModule } from './redis/redis.module';
       useFactory: async () => ({
         store: await redisStore({
           socket: {
-            host: '127.0.0.1',
-            port: 6379,
+            host: process.env.REDIS_HOST || 'localhost',
+            port: parseInt(process.env.REDIS_PORT || '6379'),
           },
         }),
         ttl: 5*60, // Cache TTL in seconds (5 minutes)

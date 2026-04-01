@@ -249,6 +249,33 @@ npm run start
 
 ---
 
+## OR Using Docker
+### Step 1 - Create .env file in your project root
+### Step 2 - Copy this into your .env
+```bash
+# ── Database ──────────────────────────────────────────────────────────────────
+DATABASE_URL="mysql://ICTHotelUser:1234@localhost:3306/Group5_ICTHotel"
+
+MYSQL_DATABASE=Group5_ICTHotel
+MYSQL_USER=ICTHotelUser
+MYSQL_PASSWORD=1234
+MYSQL_ROOT_PASSWORD=rootpassword
+# Host-side port for MySQL (3307 avoids clashing with a local MySQL on 3306)
+MYSQL_HOST_PORT=3307
+
+# ── Redis ─────────────────────────────────────────────────────────────────────
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# ── Auth ──────────────────────────────────────────────────────────────────────
+JWT_SECRET=mysecretkey
+JWT_EXPIRATION=3600
+
+# ── Server ────────────────────────────────────────────────────────────────────
+PORT=3000
+
+```
+
 ## ✅ Setup Checklist
 
 - [ ] Execute `Group5_ICTHotel.sql`
