@@ -44,7 +44,6 @@ model Notifications {
   created_at DateTime @default(now()) @db.DateTime(0)
 }
 
-
 enum Users_Role {
   User
   Admin
