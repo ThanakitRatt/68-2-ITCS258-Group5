@@ -60,18 +60,6 @@ CREATE TABLE Notifications (
 );
 
  -- ============================
- -- Insert Mock Users
- -- ============================
--- Admin User: admin@example.com / password123
-INSERT INTO Users (name, email, password, Role) VALUES
-('Admin User', 'admin@example.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5YmMxSUmmVlFm', 'Admin');
-
--- Regular User: user@example.com / password123
-INSERT INTO Users (name, email, password, Role) VALUES
-('John Doe', 'user@example.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5YmMxSUmmVlFm', 'User'),
-('Jane Smith', 'jane@example.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5YmMxSUmmVlFm', 'User');
-
- -- ============================
  -- Insert Mock Rooms
  -- ============================
 INSERT INTO Rooms (name, description, capacity, price_per_night, image_url, is_active) VALUES
