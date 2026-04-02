@@ -45,13 +45,26 @@ Create TABLE Bookings (
   status ENUM('PENDING', 'APPROVED', 'CANCELLED', 'PAID') NOT NULL DEFAULT 'PENDING'
 );
 
- 
  -- ============================
- -- Insert Sample Rooms (Optional)
+ -- Create Notifications Table
  -- ============================
---  INSERT INTO rooms (name, description, capacity, price_per_night, image_url, is_active) VALUES
---  ('Standard Room 101', 'Standard room with garden view', 2, 1800.00, '/images/room101.jpg', TRUE),
---  ('Deluxe Room 201', 'Deluxe room with city view and balcony', 2, 2800.00, '/images/room201.jpg', TRUE),
---  ('Family Room 301', 'Large family room suitable for 4 guests', 4, 4200.00, '/images/room301.jpg', TRUE),
---  ('Suite Room 401', 'Luxury suite with living area and sea view', 3, 6500.00, '/images/room401.jpg', TRUE),
---  ('Economy Room 102', 'Small economy room for budget travelers', 1, 1200.00, '/images/room102.jpg', FALSE);    
+CREATE TABLE Notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  booking_id INT NOT NULL,
+  type VARCHAR(50) NOT NULL,
+  message VARCHAR(255) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES Users(id),
+  FOREIGN KEY (booking_id) REFERENCES Bookings(id)
+);
+
+ -- ============================
+ -- Insert Mock Rooms
+ -- ============================
+INSERT INTO Rooms (name, description, capacity, price_per_night, image_url, is_active) VALUES
+('Standard Room 101', 'Standard room with garden view', 2, 1800.00, '/images/room101.jpg', TRUE),
+('Deluxe Room 201', 'Deluxe room with city view and balcony', 2, 2800.00, '/images/room201.jpg', TRUE),
+('Family Room 301', 'Large family room suitable for 4 guests', 4, 4200.00, '/images/room301.jpg', TRUE),
+('Suite Room 401', 'Luxury suite with living area and sea view', 3, 6500.00, '/images/room401.jpg', TRUE),
+('Economy Room 102', 'Small economy room for budget travelers', 1, 1200.00, '/images/room102.jpg', TRUE);
