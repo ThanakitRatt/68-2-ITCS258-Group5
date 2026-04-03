@@ -1,6 +1,6 @@
 /*
 AI Declaration:
-I used copilot to help me create the validation decorators for ValidationPipe.
+I used Copilot to help me create the validation decorators for ValidationPipe.
 I wrote all the other code, and I understand the entire implementation.
 
 Reflection:
@@ -92,7 +92,16 @@ export class RoomsService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} room`;
+  async remove(id: number) {
+    this.logger.log(`Deleting room id: ${id}`);
+    try {
+      await this.findARoom(id);
+      await this.prisma.rooms.delete({ where: { id } });
+      this.logger.log(`Room ${id} deleted successfully`);
+      return { success: true };
+    } catch (error) {
+      this.logger.error(`Failed to delete room: ${(error as Error).message}`);
+      throw error;
+    }
   }
 }

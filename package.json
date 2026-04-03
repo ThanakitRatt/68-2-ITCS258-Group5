@@ -1,7 +1,7 @@
 {
   "name": "nest-prisma-lab",
   "version": "0.0.1",
-  "description": "> **Group 5** — NestJS · TypeScript · Prisma · MySQL",
+  "description": "> **Group 5** \u2014 NestJS \u00b7 TypeScript \u00b7 Prisma \u00b7 MySQL",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
@@ -17,8 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:seed": "node prisma/seed.js"
+    "test:e2e": "jest --config ./test/jest-e2e.json --testPathPatterns \"hotel-booking\\.e2e\" --runInBand --forceExit",
+    "db:seed": "node prisma/seed.js",
+    "test:e2e:rooms": "jest --config ./test/jest-e2e.json --testPathPatterns \"rooms\\.e2e\" --runInBand --forceExit",
+    "test:e2e:all": "npm run test:e2e && npm run test:e2e:rooms"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.1.0",
