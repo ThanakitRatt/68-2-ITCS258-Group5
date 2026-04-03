@@ -1,15 +1,3 @@
-/*
-AI Declaration:
-I used copilot to help me create the validation decorators for ValidationPipe.
-I wrote all the other code, and I understand the entire implementation.
-
-Reflection:
-I understand NestJS Validation, Error Handling, and Logging.
-From existing Lab4, I implemented DTO validation using class-validator decorators to make sure that body data sent to the server is valid.
-I added Error Handling, so when the error occurs, it returns appropriate messages.
-I also added Logging using log/warn/error to log events occurring in the service.
-*/
-
 import { Injectable, NotFoundException} from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
@@ -92,7 +80,14 @@ export class RoomsService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} room`;
+  async remove(id: number) {
+    this.logger.log(`Deleting room id: ${id}`);
+    try {
+      await this.findARoom(id);
+      return this.prisma.rooms.delete({ where: { id } });
+    } catch (error) {
+      this.logger.error(`Failed to delete room: ${(error as Error).message}`);
+      throw error;
+    }
   }
 }

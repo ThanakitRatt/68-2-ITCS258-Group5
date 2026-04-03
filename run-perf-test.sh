@@ -26,5 +26,5 @@ echo ""
 
 # Using npx to run autocannon without global install requirement
 # -c 100: 100 concurrent connections
-# -d 10: 10 seconds duration
+# -d 20: 20 seconds duration
 npx autocannon -c 100 -d 20 -H "Authorization: Bearer $TOKEN" "$BASE_URL/rooms "
