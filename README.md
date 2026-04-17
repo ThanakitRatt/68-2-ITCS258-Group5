@@ -656,6 +656,28 @@ docker compose up --build api
 
 ---
 
+### Deployment Instructions
+
+This project is deployed on a private Mahidol University server using Docker Compose.
+
+**Prerequisites:** - Must be connected to the Mahidol University VPN or campus network.
+- Access to the faculty GitLab repository.
+
+**Deployment Steps:**
+1. SSH into the production server: `ssh student@10.34.112.154`
+2. Navigate to the project directory: `cd 68-2-ITCS258-Group5`
+3. Pull the latest code from the GitLab main branch: `git pull origin main`
+4. Rebuild and start the services: `docker compose up -d --build`
+   *(Note: The database is automatically seeded via `Group5_ICTHotelDB.sql` during the initial build).*
+
+**Live Services:**
+- Nginx / API Entrypoint: `http://10.34.112.154` (Port 80)
+- Database: Running internally (Exposed securely on 3307 if remote access is required via VPN).
+
+**Test Credentials:**
+- **Role: Admin** | Email: `admin@example.com` | Password: `password123`
+- **Role: User** | Email: `user@example.com` | Password: `password123`
+
 ### Environment Variables Reference
 
 | Variable | Description | Default |
